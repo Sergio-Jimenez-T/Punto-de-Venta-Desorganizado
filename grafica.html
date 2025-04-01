@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gráfica de productos vendidos</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.27.0/dist/date-fns.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: white; /* Fondo oscuro */
+            color: #ffffff; /* Texto blanco */
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* Barra superior con los botones */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1500px;
+            margin-bottom: 0px;
+        }
+
+        /* Botones */
+        .btn {
+            font-size: 20px;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 35px;
+            border: 2px solid #4CAF50;
+            color: #fff;
+            background-color: #4CAF50;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+
+        /* Contenedor del formulario */
+        .form-container {
+            padding: 0px;
+            border-radius: 50px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 5px;
+			margin-top: -100px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .form-container label {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .form-container input[type="date"] {
+            padding: 5px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            font-size: 18px;
+            box-sizing: border-box;
+        }
+
+        canvas {
+            width: 100%;
+            max-width: 1500px;
+            height: 400px;
+            margin-top: 0px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Barra superior -->
+    <div class="top-bar">
+        <a href="admin_dashboard.php" class="btn">Volver al Dashboard</a>
+        <button id="btnGenerarPDF" class="btn">Generar PDF</button>
+    </div>
+
+    <!-- Formulario -->
+    <div class="form-container">
+        <h1>Filtrar por fecha</h1>
+        <form id="rangoFechasForm">
+            <div class="form-group">
+                <label for="fechaInicio">Fecha inicio:</label>
+                <input type="date" id="fechaInicio" name="fechaInicio" required>
+                <label for="fechaFin">Fecha fin:</label>
+                <input type="date" id="fechaFin" name="fechaFin" required>
+            </div>
+            <button type="submit" class="btn">Filtrar</button>
+        </form>
+    </div>
+
+    <!-- Gráfica -->
+    <canvas id="graficaBarras"></canvas>
+
+    <script src="graficar.js"></script> <!-- Script de la gráfica -->
+
+    <script>
+        document.getElementById('btnGenerarPDF').addEventListener('click', function () {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: "landscape",
+                unit: "mm",
+                format: "a4"
+            });
+
+            const fechaInicio = document.getElementById("fechaInicio").value;
+            const fechaFin = document.getElementById("fechaFin").value;
+            const rangoFechas = `Rango: ${fechaInicio} - ${fechaFin}`;
+
+            doc.setFontSize(18);
+            doc.text("Reporte de Ventas", 15, 20);
+            doc.setFontSize(14);
+            doc.text(rangoFechas, 20, 30);
+
+            // Capturar la gráfica
+            html2canvas(document.getElementById("graficaBarras")).then(canvas => {
+                const imgData = canvas.toDataURL("image/png");
+                doc.addImage(imgData, "PNG", 15, 40, 260, 120);
+                doc.save("reporte_ventas.pdf");
+            });
+        });
+    </script>
+
+</body>
+</html>
